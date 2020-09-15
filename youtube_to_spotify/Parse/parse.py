@@ -73,7 +73,28 @@ class Parse:
             playlist = self.cfg.spotify.user_playlist_create(user_id,playlist)
             self.search_and_add((user_id,user_items), playlist)
         elif user_option == 2:
-            pass
+            #print out playlists of the user
+            print("-------------------------------------------------------------------")
+            print("YOUR PLAYLISTS")
+            print("-------------------------------------------------------------------")
+            user_playlists = self.cfg.spotify.current_user_playlists(limit = 50)
+            for i , playlist in enumerate(user_playlists['items']):
+                print(f'{i+1} - {playlist["name"]}')
+            
+            
+            
+            status = True
+            while(status):
+                try:
+                    playlist_number = int(input('Select Playlist number to add songs to:\n'))
+                except ValueError:
+                    print('Error. Not a number. Please Try again.\n')
+                else:
+                    status = False
+                    user_playlist = user_playlists['items'][playlist_number - 1]
+
+            self.search_and_add((user_id,user_items),user_playlist)
+            
         else:
             sys.exit(0)
 
@@ -97,12 +118,13 @@ class Parse:
                 artist, title = get_artist_title(song)
             except TypeError:
                 continue
+
             artist = artist.replace('& ', ',')
             title = self.remove_parenthesis(title)
             result = self.cfg.spotify.search(f'{title} {artist}')
             
             if result['tracks']['items']:
-                
+
                 print(f'{title} - {artist} found adding to playlist: {playlist["name"]}\n')
                 #Grab the first item in the tracks
                 track = result['tracks']['items'][0] 
